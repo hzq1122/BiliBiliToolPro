@@ -83,8 +83,11 @@ touch /root/.bashrc && . /root/.bashrc
 
 # 目录
 say "青龙repo目录: $dir_repo"
-qinglong_bili_repo="$(echo "$bili_repo" | sed 's/\//_/g')${bili_branch}"
-qinglong_bili_repo_dir="$(find $dir_repo -type d \( -iname $qinglong_bili_repo -o -iname ${qinglong_bili_repo}_main \) | head -1)"
+# 动态获取仓库目录
+# 获取当前脚本所在目录的绝对路径
+current_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+# 回退两级找到仓库根目录 (qinglong/DefaultTasks/ -> qinglong/ -> root)
+qinglong_bili_repo_dir=$(dirname $(dirname "$current_script_dir"))
 say "bili仓库目录: $qinglong_bili_repo_dir"
 
 current_linux_os="debian"  # 或alpine
