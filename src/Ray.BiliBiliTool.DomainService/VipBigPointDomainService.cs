@@ -259,6 +259,51 @@ public class VipBigPointDomainService(
         return false;
     }
 
+    public async Task<bool> CompleteOgvWatchAsync(BiliCookie ck)
+    {
+        // 第 1 步：开始观看 - 调用 material/receive 获取 task_id 和 token
+        logger.LogInformation("开始观看剧集");
+        var startRequest = new StartOgvWatchRequest();
+        var startResponse = await vipApi.StartOgvWatchAsync(startRequest, ck.ToString());
+        if (startResponse.Code != 0 || startResponse.Data?.watch_count_down_cfg == null)
+        {
+            logger.LogInformation("开始观看失败：{msg}", startResponse.ToJsonStr());
+            return false;
+        }
+
+        var cfg = startResponse.Data.watch_count_down_cfg;
+        logger.LogInformation(
+            "获取到 task_id={taskId}, token={token}, 需等待 {ms}ms",
+            cfg.task_id,
+            cfg.token,
+            cfg.milliseconds
+        );
+
+        // 第 2 步：等待观看时间（默认10分钟=600000ms）
+        var waitTime = Math.Max(cfg.milliseconds, 600_000);
+        logger.LogInformation("等待观看 {seconds} 秒...", waitTime / 1000);
+        await Task.Delay((int)waitTime);
+
+        // 第 3 步：上报完成
+        logger.LogInformation("上报完成观看");
+        var completeRequest = new CompleteOgvWatchRequest(cfg.task_id, cfg.token!)
+        {
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+        };
+        var completeResponse = await vipApi.CompleteOgvWatchAsync(
+            completeRequest,
+            ck.ToString()
+        );
+        if (completeResponse.Code == 0)
+        {
+            logger.LogInformation("观看剧集完成");
+            return true;
+        }
+
+        logger.LogInformation("上报完成失败：{msg}", completeResponse.ToJsonStr());
+        return false;
+    }
+
     #region private
 
     /// <summary>

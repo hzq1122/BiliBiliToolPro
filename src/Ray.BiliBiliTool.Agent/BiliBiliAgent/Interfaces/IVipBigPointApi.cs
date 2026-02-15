@@ -124,8 +124,9 @@ public interface IVipBigPointApi
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
+    [HttpPost("/pgc/activity/deliver/material/receive")]
     Task<BiliApiResponse<StartOgvWatchResponse>> StartOgvWatchAsync(
-        StartOgvWatchRequest request,
+        [FormContent] StartOgvWatchRequest request,
         [Header("Cookie")] string ck
     );
 
@@ -134,8 +135,9 @@ public interface IVipBigPointApi
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
+    [HttpPost("/pgc/activity/deliver/task/complete")]
     Task<BiliApiResponse> CompleteOgvWatchAsync(
-        CompleteOgvWatchRequest request,
+        [FormContent] CompleteOgvWatchRequest request,
         [Header("Cookie")] string ck
     );
 }
