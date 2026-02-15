@@ -8,7 +8,7 @@ public class CompleteOgvWatchRequest : BaseAppRequest
         this.token = token;
     }
 
-    public long task_id { get; set; }
+    public string? task_id { get; set; }
 
     public string token { get; set; }
 

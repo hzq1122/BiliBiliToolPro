@@ -11,7 +11,7 @@ public class StartOgvWatchResponse
 
 public class WatchCountDownCfg
 {
-    public long task_id { get; set; }
+    public string? task_id { get; set; }
 
     public string? token { get; set; }
 
