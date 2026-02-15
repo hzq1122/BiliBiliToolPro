@@ -6,12 +6,12 @@ public class TaskInfo
 
     public int Score_limit { get; set; }
 
-    public List<ModuleItem> Modules { get; set; } = [];
+    public List<ModuleItem>? Modules { get; set; } = [];
 
     [Obsolete(
         "The sign result comes from combine API is not correct, use IVipBigPointApi.GetThreeDaySignAsync instead."
     )]
-    public required SingTaskItem Sing_task_item { get; set; }
+    public SingTaskItem? Sing_task_item { get; set; }
 }
 
 public class SingTaskItem
