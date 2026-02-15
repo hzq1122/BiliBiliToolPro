@@ -11,7 +11,7 @@ set -u
 set -o pipefail
 
 verbose=false                          # 开启debug日志
-bili_repo="raywangqvq/bilibilitoolpro" # 仓库地址
+bili_repo="hzq1122/BiliBiliToolPro" # 仓库地址
 bili_branch=""                         # 分支名，空或_develop
 prefer_mode=${BILI_MODE:-"dotnet"}     # dotnet或bilitool，需要通过环境变量配置
 github_proxy=${BILI_GITHUB_PROXY:-""}  # 下载github release包时使用的代理，会拼在地址前面，需要通过环境变量配置
@@ -83,11 +83,8 @@ touch /root/.bashrc && . /root/.bashrc
 
 # 目录
 say "青龙repo目录: $dir_repo"
-# 动态获取仓库目录
-# 获取当前脚本所在目录的绝对路径
-current_script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-# 回退两级找到仓库根目录 (qinglong/DefaultTasks/ -> qinglong/ -> root)
-qinglong_bili_repo_dir=$(dirname $(dirname "$current_script_dir"))
+qinglong_bili_repo="$(echo "$bili_repo" | sed 's/\//_/g')${bili_branch}"
+qinglong_bili_repo_dir="$(find $dir_repo -type d \( -iname $qinglong_bili_repo -o -iname "${qinglong_bili_repo}_main" -o -iname "${qinglong_bili_repo}_master" \) | head -1)"
 say "bili仓库目录: $qinglong_bili_repo_dir"
 
 current_linux_os="debian"  # 或alpine
