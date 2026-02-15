@@ -279,12 +279,15 @@ public class VipBigPointDomainService(
             cfg.milliseconds
         );
 
-        // 第 2 步：等待观看时间（默认10分钟=600000ms）
+        // 第 2 步：模拟观看（发送心跳）
+        await WatchBangumi(ck);
+
+        // 第 3 步：等待观看时间（默认10分钟=600000ms）
         var waitTime = Math.Max(cfg.milliseconds, 600_000);
         logger.LogInformation("等待观看 {seconds} 秒...", waitTime / 1000);
         await Task.Delay((int)waitTime);
 
-        // 第 3 步：上报完成
+        // 第 4 步：上报完成
         logger.LogInformation("上报完成观看");
         var completeRequest = new CompleteOgvWatchRequest(cfg.task_id, cfg.token!)
         {
@@ -330,12 +333,15 @@ public class VipBigPointDomainService(
 
     private async Task<bool> WatchBangumi(BiliCookie ck)
     {
-        if (_vipBigPointOptions.ViewBangumiList.Count == 0)
-            return false;
+        // 如果配置为空，使用默认的热门番剧列表
+        List<long> ssidList = _vipBigPointOptions.ViewBangumiList;
+        if (ssidList == null || ssidList.Count == 0)
+        {
+             // 默认列表：间谍过家家, 鬼灭之刃, 咒术回战, 史莱姆, 柯南, 凡人修仙传
+             ssidList = new List<long> { 28235413, 28234856, 28231998, 28228836, 1733, 28224380 };
+        }
 
-        long randomSsid = _vipBigPointOptions.ViewBangumiList[
-            new Random().Next(0, _vipBigPointOptions.ViewBangumiList.Count)
-        ];
+        long randomSsid = ssidList[new Random().Next(0, ssidList.Count)];
 
         var res = await GetBangumi(randomSsid, ck);
         if (res is null)
@@ -345,7 +351,7 @@ public class VipBigPointDomainService(
 
         var videoInfo = res.Value.Item1;
 
-        // 随机播放时间
+        // 随机播放时间，模拟观看 15-30 分钟
         int playedTime = new Random().Next(905, 1800);
         // 观看该视频
         var request = new UploadVideoHeartbeatRequest()
@@ -367,6 +373,7 @@ public class VipBigPointDomainService(
         BiliApiResponse apiResponse = await videoApi.UploadVideoHeartbeat(request, ck.ToString());
         if (apiResponse.Code == 0)
         {
+            logger.LogInformation("模拟观看成功：{title}", videoInfo.Title);
             return true;
         }
 
